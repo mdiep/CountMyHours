@@ -32,4 +32,18 @@
 }
 
 
+//==================================================================================================
+#pragma mark -
+#pragma mark Actions
+//==================================================================================================
+
+- (void) showPreferences:(id)sender
+{
+    if (![_prefsWindow isVisible])
+        [_prefsWindow center];
+    
+    [_prefsWindow makeKeyAndOrderFront:sender];
+}
+
+
 @end

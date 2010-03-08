@@ -11,8 +11,11 @@
 @interface CHAppDelegate : NSObject <NSApplicationDelegate>
 {
     IBOutlet NSMenu *_menu;
+    IBOutlet NSWindow *_prefsWindow;
     
     NSStatusItem *_statusItem;
 }
+
+- (void) showPreferences:(id)sender;
 
 @end
