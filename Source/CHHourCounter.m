@@ -23,7 +23,7 @@
     if (self)
     {
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        _calendarsToCount = [[NSMutableArray alloc] initWithArray:[defaults arrayForKey:@"CHCalendersToCount"]];
+        _calendarsToCount = [[defaults arrayForKey:@"CHCalendarsToCount"] mutableCopy];
     }
     
     return self;
