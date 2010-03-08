@@ -9,9 +9,9 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface CHPrefsWindowController : NSWindowController
+@interface CHPrefsWindowController : NSWindowController <NSTableViewDataSource>
 {
-    IBOutlet NSPopUpButton *_calendarPopUp;
+    IBOutlet NSTableView *_calendarTableView;
 }
 
 @end

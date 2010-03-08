@@ -15,15 +15,23 @@
 
 //==================================================================================================
 #pragma mark -
-#pragma mark NSObject Methods
+#pragma mark NSTableViewDataSource Methods
 //==================================================================================================
 
-- (void) awakeFromNib
+- (NSInteger) numberOfRowsInTableView:(NSTableView *)aTableView
 {
     CalCalendarStore *store = [CalCalendarStore defaultCalendarStore];
-    
-    for (CalCalendar *calendar in [store calendars])
-        [_calendarPopUp addItemWithTitle:calendar.title];
+    return [[store calendars] count];
+}
+
+
+- (id) tableView: (NSTableView *)aTableView
+objectValueForTableColumn: (NSTableColumn *)aTableColumn
+             row: (NSInteger)rowIndex
+{
+    CalCalendarStore *store    = [CalCalendarStore defaultCalendarStore];
+    CalCalendar      *calendar = [store.calendars objectAtIndex:rowIndex];
+    return calendar.title;
 }
 
 
