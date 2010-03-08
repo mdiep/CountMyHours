@@ -16,6 +16,8 @@
     NSMutableArray *_calendarsToCount;
 }
 
+@property (readonly) NSArray *calendars;
+
 + (id) sharedInstance;
 
 - (BOOL) isCountingHoursInCalendar:(CalCalendar *)calendar;

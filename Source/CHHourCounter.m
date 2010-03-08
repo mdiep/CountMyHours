@@ -118,7 +118,57 @@
 
 - (NSUInteger) totalHoursForWeek:(NSDate *)weekDate
 {
-    return 0;
+    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    
+    NSDate *beginningOfWeek = nil;
+    NSTimeInterval interval = 0;
+    BOOL ok = [gregorian rangeOfUnit: NSWeekCalendarUnit
+                           startDate: &beginningOfWeek
+                            interval: &interval
+                             forDate: weekDate];
+    
+    NSUInteger hours = 0;
+    
+    if (ok)
+    {
+        CalCalendarStore *store = [CalCalendarStore defaultCalendarStore];
+        NSDate *endOfWeek = [NSDate dateWithTimeInterval:interval sinceDate:beginningOfWeek];
+        
+        NSPredicate *predicate = [CalCalendarStore eventPredicateWithStartDate: beginningOfWeek
+                                                                       endDate: endOfWeek
+                                                                     calendars: self.calendars];
+        NSArray *events = [store eventsWithPredicate:predicate];
+        for (CalEvent *event in events)
+        {
+            if (event.isAllDay)
+                continue;
+            
+            NSTimeInterval interval = [event.endDate timeIntervalSinceDate:event.startDate];
+            hours += floor(interval/60.0/60.0);
+        }
+    }
+    
+    [gregorian release];
+    return hours;
+}
+
+
+//==================================================================================================
+#pragma mark -
+#pragma mark Public Properties
+//==================================================================================================
+
+- (NSArray *) calendars
+{
+    CalCalendarStore *store     = [CalCalendarStore defaultCalendarStore];
+    NSMutableArray   *calendars = [NSMutableArray array];
+    for (NSString *uid in _calendarsToCount)
+    {
+        CalCalendar *calendar = [store calendarWithUID:uid];
+        if (calendar)
+            [calendars addObject:calendar];
+    }
+    return calendars;
 }
 
 

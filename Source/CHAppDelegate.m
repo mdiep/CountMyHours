@@ -8,6 +8,14 @@
 
 #import "CHAppDelegate.h"
 
+
+#import "CHHourCounter.h"
+
+@interface CHAppDelegate ()
+- (void) _updateTimes:(id)sender;
+@end
+
+
 @implementation CHAppDelegate
 
 //==================================================================================================
@@ -17,6 +25,9 @@
 
 - (void) dealloc
 {
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc removeObserver:self name:CalEventsChangedNotification object:nil];
+    
     [_statusItem release];
     
     [super dealloc];
@@ -26,9 +37,33 @@
 - (void) awakeFromNib
 {
     _statusItem = [[[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength] retain];
-    [_statusItem setTitle:@"0/33h"];
     [_statusItem setHighlightMode:YES];
     [_statusItem setMenu:_menu];
+    
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc addObserver: self
+           selector: @selector(_updateTimes:)
+               name: CalEventsChangedExternallyNotification
+             object: nil];
+    
+    [self _updateTimes:nil];
+}
+
+
+//==================================================================================================
+#pragma mark -
+#pragma mark Private Methods
+//==================================================================================================
+
+- (void) _updateTimes:(id)sender
+{
+    CHHourCounter *counter = [CHHourCounter sharedInstance];
+    
+    NSUInteger completed = [counter completedHoursForWeek:[NSDate date]];
+    NSUInteger total     = [counter totalHoursForWeek:[NSDate date]];
+    
+    NSString *title = [NSString stringWithFormat:@"%u/%uh", completed, total];
+    [_statusItem setTitle:title];
 }
 
 
