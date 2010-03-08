@@ -77,6 +77,7 @@
     if (![_prefsWindow isVisible])
         [_prefsWindow center];
     
+    [NSApp activateIgnoringOtherApps:YES];
     [_prefsWindow makeKeyAndOrderFront:sender];
 }
 
