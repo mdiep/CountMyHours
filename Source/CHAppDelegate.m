@@ -26,7 +26,7 @@
 - (void) dealloc
 {
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    [nc removeObserver:self name:CalEventsChangedNotification object:nil];
+    [nc removeObserver:self name:CHHoursNeedToBeRecountedNotification object:nil];
     
     [_statusItem release];
     
@@ -43,7 +43,7 @@
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     [nc addObserver: self
            selector: @selector(_updateTimes:)
-               name: CalEventsChangedExternallyNotification
+               name: CHHoursNeedToBeRecountedNotification
              object: nil];
     
     [self _updateTimes:nil];

@@ -9,10 +9,13 @@
 #import "CHHourCounter.h"
 
 
+NSString * const CHHoursNeedToBeRecountedNotification = @"CHHoursNeedToBeRecountedNotification";
+
 @interface CHHourCounter ()
 - (NSDate *) _beginningOfWeek:(NSDate *)weekDate;
 - (NSDate *) _endOfWeek:(NSDate *)weekDate;
 - (NSUInteger) _hoursBetweenBegin:(NSDate *)beginDate end:(NSDate *)endDate;
+- (void) _postRecountNotification;
 @end
 
 
@@ -31,6 +34,16 @@
     {
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         _calendarsToCount = [[defaults arrayForKey:@"CHCalendarsToCount"] mutableCopy];
+        
+        NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+        [nc addObserver: self
+               selector: @selector(_eventsChanged:)
+                   name: CalEventsChangedExternallyNotification
+                 object: nil];
+        [nc addObserver: self
+               selector: @selector(_calendarsChanged:)
+                   name: CalCalendarsChangedExternallyNotification
+                 object: nil];
     }
     
     return self;
@@ -40,37 +53,12 @@
 - (void) dealloc
 {
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc removeObserver:self name:CalEventsChangedExternallyNotification    object:nil];
     [nc removeObserver:self name:CalCalendarsChangedExternallyNotification object:nil];
     
     [_calendarsToCount release];
     
     [super dealloc];
-}
-
-
-- (void) awakeFromNib
-{
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    [nc addObserverForName: CalCalendarsChangedExternallyNotification
-                    object: nil
-                     queue: nil
-                usingBlock: ^(NSNotification *notification) {
-                    CalCalendarStore *store = [CalCalendarStore defaultCalendarStore];
-                    
-                    NSMutableArray *toRemove = [NSMutableArray new];
-                    for (NSString *uid in self->_calendarsToCount)
-                        if (![store calendarWithUID:uid])
-                            [toRemove addObject:uid];
-                    
-                    if ([toRemove count])
-                    {
-                        [self->_calendarsToCount removeObjectsInArray:toRemove];
-                        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-                        [defaults setObject:self->_calendarsToCount forKey:@"CHCalendarsToCount"];
-                    }
-                    
-                    [toRemove release];
-                }];
 }
 
 
@@ -102,6 +90,8 @@
         [_calendarsToCount addObject:calendar.uid];
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setObject:_calendarsToCount forKey:@"CHCalendarsToCount"];
+        
+        [self _postRecountNotification];
     }
 }
 
@@ -113,6 +103,8 @@
         [_calendarsToCount removeObject:calendar.uid];
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setObject:_calendarsToCount forKey:@"CHCalendarsToCount"];
+        
+        [self _postRecountNotification];
     }
 }
 
@@ -153,7 +145,7 @@
 
 //==================================================================================================
 #pragma mark -
-#pragma mark Public Properties
+#pragma mark Private Methods
 //==================================================================================================
 
 - (NSDate *) _beginningOfWeek:(NSDate *)weekDate
@@ -217,6 +209,46 @@
     }
     
     return hours;
+}
+
+
+- (void) _postRecountNotification
+{
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc postNotificationName:CHHoursNeedToBeRecountedNotification object:self];
+}
+
+
+//==================================================================================================
+#pragma mark -
+#pragma mark Notifications
+//==================================================================================================
+
+- (void) _calendarsChanged:(NSNotification *)notification
+{
+    CalCalendarStore *store = [CalCalendarStore defaultCalendarStore];
+    
+    NSMutableArray *toRemove = [NSMutableArray new];
+    for (NSString *uid in _calendarsToCount)
+        if (![store calendarWithUID:uid])
+            [toRemove addObject:uid];
+    
+    if ([toRemove count])
+    {
+        [_calendarsToCount removeObjectsInArray:toRemove];
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setObject:_calendarsToCount forKey:@"CHCalendarsToCount"];
+    }
+    
+    [toRemove release];
+    
+    [self _postRecountNotification];
+}
+
+
+- (void) _eventsChanged:(NSNotification *)notification
+{
+    [self _postRecountNotification];
 }
 
 

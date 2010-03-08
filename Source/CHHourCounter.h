@@ -11,6 +11,8 @@
 
 #import <CalendarStore/CalendarStore.h>
 
+extern NSString * const CHHoursNeedToBeRecountedNotification;
+
 @interface CHHourCounter : NSObject
 {
     NSMutableArray *_calendarsToCount;
