@@ -32,9 +32,38 @@
 
 - (void) dealloc
 {
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc removeObserver:self name:CalCalendarsChangedExternallyNotification object:nil];
+    
     [_calendarsToCount release];
     
     [super dealloc];
+}
+
+
+- (void) awakeFromNib
+{
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc addObserverForName: CalCalendarsChangedExternallyNotification
+                    object: nil
+                     queue: nil
+                usingBlock: ^(NSNotification *notification) {
+                    CalCalendarStore *store = [CalCalendarStore defaultCalendarStore];
+                    
+                    NSMutableArray *toRemove = [NSMutableArray new];
+                    for (NSString *uid in self->_calendarsToCount)
+                        if (![store calendarWithUID:uid])
+                            [toRemove addObject:uid];
+                    
+                    if ([toRemove count])
+                    {
+                        [self->_calendarsToCount removeObjectsInArray:toRemove];
+                        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                        [defaults setObject:self->_calendarsToCount forKey:@"CHCalendarsToCount"];
+                    }
+                    
+                    [toRemove release];
+                }];
 }
 
 

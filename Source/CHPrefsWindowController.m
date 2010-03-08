@@ -17,6 +17,32 @@
 
 //==================================================================================================
 #pragma mark -
+#pragma mark NSObject Methods
+//==================================================================================================
+
+- (void) dealloc
+{
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc removeObserver:self name:CalCalendarsChangedExternallyNotification object:nil];
+    
+    [super dealloc];
+}
+
+
+- (void) awakeFromNib
+{
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc addObserverForName: CalCalendarsChangedExternallyNotification
+                    object: nil
+                     queue: nil
+                usingBlock: ^(NSNotification *notification) {
+                    [_calendarTableView reloadData];
+                }];
+}
+
+
+//==================================================================================================
+#pragma mark -
 #pragma mark NSTableViewDataSource Methods
 //==================================================================================================
 
