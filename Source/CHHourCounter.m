@@ -9,6 +9,13 @@
 #import "CHHourCounter.h"
 
 
+@interface CHHourCounter ()
+- (NSDate *) _beginningOfWeek:(NSDate *)weekDate;
+- (NSDate *) _endOfWeek:(NSDate *)weekDate;
+- (NSUInteger) _hoursBetweenBegin:(NSDate *)beginDate end:(NSDate *)endDate;
+@end
+
+
 @implementation CHHourCounter
 
 //==================================================================================================
@@ -112,44 +119,16 @@
 
 - (NSUInteger) completedHoursForWeek:(NSDate *)weekDate
 {
-    return 0;
+    NSDate *beginningOfWeek = [self _beginningOfWeek:weekDate];
+    return [self _hoursBetweenBegin:beginningOfWeek end:[NSDate date]];
 }
 
 
 - (NSUInteger) totalHoursForWeek:(NSDate *)weekDate
 {
-    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-    
-    NSDate *beginningOfWeek = nil;
-    NSTimeInterval interval = 0;
-    BOOL ok = [gregorian rangeOfUnit: NSWeekCalendarUnit
-                           startDate: &beginningOfWeek
-                            interval: &interval
-                             forDate: weekDate];
-    
-    NSUInteger hours = 0;
-    
-    if (ok)
-    {
-        CalCalendarStore *store = [CalCalendarStore defaultCalendarStore];
-        NSDate *endOfWeek = [NSDate dateWithTimeInterval:interval sinceDate:beginningOfWeek];
-        
-        NSPredicate *predicate = [CalCalendarStore eventPredicateWithStartDate: beginningOfWeek
-                                                                       endDate: endOfWeek
-                                                                     calendars: self.calendars];
-        NSArray *events = [store eventsWithPredicate:predicate];
-        for (CalEvent *event in events)
-        {
-            if (event.isAllDay)
-                continue;
-            
-            NSTimeInterval interval = [event.endDate timeIntervalSinceDate:event.startDate];
-            hours += floor(interval/60.0/60.0);
-        }
-    }
-    
-    [gregorian release];
-    return hours;
+    NSDate *beginningOfWeek = [self _beginningOfWeek:weekDate];
+    NSDate *endOfWeek       = [self _endOfWeek:weekDate];
+    return [self _hoursBetweenBegin:beginningOfWeek end:endOfWeek];
 }
 
 
@@ -169,6 +148,75 @@
             [calendars addObject:calendar];
     }
     return calendars;
+}
+
+
+//==================================================================================================
+#pragma mark -
+#pragma mark Public Properties
+//==================================================================================================
+
+- (NSDate *) _beginningOfWeek:(NSDate *)weekDate
+{
+    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    
+    NSDate *beginningOfWeek = nil;
+    NSTimeInterval interval = 0;
+    BOOL ok = [gregorian rangeOfUnit: NSWeekCalendarUnit
+                           startDate: &beginningOfWeek
+                            interval: &interval
+                             forDate: weekDate];
+    [gregorian release];
+    
+    if (!ok)
+        return nil;
+    return beginningOfWeek;
+}
+
+
+- (NSDate *) _endOfWeek:(NSDate *)weekDate
+{
+    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    
+    NSDate *beginningOfWeek = nil;
+    NSTimeInterval interval = 0;
+    BOOL ok = [gregorian rangeOfUnit: NSWeekCalendarUnit
+                           startDate: &beginningOfWeek
+                            interval: &interval
+                             forDate: weekDate];
+    [gregorian release];
+    
+    if (!ok)
+        return nil;
+    
+    NSDate *endOfWeek = [NSDate dateWithTimeInterval:interval sinceDate:beginningOfWeek];
+    return endOfWeek;
+}
+
+
+- (NSUInteger) _hoursBetweenBegin:(NSDate *)beginDate end:(NSDate *)endDate
+{
+    NSUInteger hours = 0;
+    
+    if (beginDate && endDate)
+    {
+        CalCalendarStore *store = [CalCalendarStore defaultCalendarStore];
+        
+        NSPredicate *predicate = [CalCalendarStore eventPredicateWithStartDate: beginDate
+                                                                       endDate: endDate
+                                                                     calendars: self.calendars];
+        NSArray *events = [store eventsWithPredicate:predicate];
+        for (CalEvent *event in events)
+        {
+            if (event.isAllDay)
+                continue;
+            
+            NSTimeInterval interval = [event.endDate timeIntervalSinceDate:event.startDate];
+            hours += floor(interval/60.0/60.0);
+        }
+    }
+    
+    return hours;
 }
 
 
