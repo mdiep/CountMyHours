@@ -10,6 +10,9 @@
 
 @interface CHAppDelegate : NSObject <NSApplicationDelegate>
 {
+    IBOutlet NSMenu *_menu;
+    
+    NSStatusItem *_statusItem;
 }
 
 @end

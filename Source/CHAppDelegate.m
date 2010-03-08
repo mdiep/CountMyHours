@@ -10,9 +10,26 @@
 
 @implementation CHAppDelegate
 
-- (void) applicationDidFinishLaunching:(NSNotification *)aNotification
+//==================================================================================================
+#pragma mark -
+#pragma mark NSObject Methods
+//==================================================================================================
+
+- (void) dealloc
 {
-	// Insert code here to initialize your application 
+    [_statusItem release];
+    
+    [super dealloc];
 }
+
+
+- (void) awakeFromNib
+{
+    _statusItem = [[[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength] retain];
+    [_statusItem setTitle:@"0/33h"];
+    [_statusItem setHighlightMode:YES];
+    [_statusItem setMenu:_menu];
+}
+
 
 @end
