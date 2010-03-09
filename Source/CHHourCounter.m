@@ -34,6 +34,7 @@ NSString * const CHHoursNeedToBeRecountedNotification = @"CHHoursNeedToBeRecount
         [defaults registerDefaults:
          [NSDictionary dictionaryWithObjectsAndKeys:
           [NSNumber numberWithInt:2],   @"CHFirstWeekday",
+          [NSArray array],              @"CHCalendarsToCount",
           nil]];
     }
 }
