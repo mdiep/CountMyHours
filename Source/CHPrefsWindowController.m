@@ -31,6 +31,9 @@
 
 - (void) awakeFromNib
 {
+    CHHourCounter *counter = [CHHourCounter sharedInstance];
+    [_firstWeekdayPopUp selectItemWithTag:[counter firstWeekday]];
+    
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     [nc addObserverForName: CalCalendarsChangedExternallyNotification
                     object: nil
@@ -38,6 +41,18 @@
                 usingBlock: ^(NSNotification *notification) {
                     [_calendarTableView reloadData];
                 }];
+}
+
+
+//==================================================================================================
+#pragma mark -
+#pragma mark Actions
+//==================================================================================================
+
+- (IBAction) changeFirstWeekday:(id)sender
+{
+    CHHourCounter *counter = [CHHourCounter sharedInstance];
+    [counter setFirstWeekday:[_firstWeekdayPopUp selectedTag]];
 }
 
 

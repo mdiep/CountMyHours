@@ -26,6 +26,19 @@ NSString * const CHHoursNeedToBeRecountedNotification = @"CHHoursNeedToBeRecount
 #pragma mark NSObject Methods
 //==================================================================================================
 
++ (void) initialize
+{
+    if ([self class] == [CHHourCounter class])
+    {
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults registerDefaults:
+         [NSDictionary dictionaryWithObjectsAndKeys:
+          [NSNumber numberWithInt:2],   @"CHFirstWeekday",
+          nil]];
+    }
+}
+
+
 - (id) init
 {
     self = [super init];
@@ -109,6 +122,22 @@ NSString * const CHHoursNeedToBeRecountedNotification = @"CHHoursNeedToBeRecount
 }
 
 
+- (NSUInteger) firstWeekday
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    return [defaults integerForKey:@"CHFirstWeekday"];
+}
+
+
+- (void) setFirstWeekday:(NSUInteger)weekDay
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setInteger:weekDay forKey:@"CHFirstWeekday"];
+    
+    [self _postRecountNotification];
+}
+
+
 - (NSUInteger) completedHoursForWeek:(NSDate *)weekDate
 {
     NSDate *beginningOfWeek = [self _beginningOfWeek:weekDate];
@@ -151,6 +180,7 @@ NSString * const CHHoursNeedToBeRecountedNotification = @"CHHoursNeedToBeRecount
 - (NSDate *) _beginningOfWeek:(NSDate *)weekDate
 {
     NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    [gregorian setFirstWeekday:[self firstWeekday]];
     
     NSDate *beginningOfWeek = nil;
     NSTimeInterval interval = 0;
@@ -169,6 +199,7 @@ NSString * const CHHoursNeedToBeRecountedNotification = @"CHHoursNeedToBeRecount
 - (NSDate *) _endOfWeek:(NSDate *)weekDate
 {
     NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    [gregorian setFirstWeekday:[self firstWeekday]];
     
     NSDate *beginningOfWeek = nil;
     NSTimeInterval interval = 0;

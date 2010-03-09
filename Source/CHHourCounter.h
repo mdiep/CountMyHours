@@ -26,6 +26,9 @@ extern NSString * const CHHoursNeedToBeRecountedNotification;
 - (void) startCountingHoursInCalendar:(CalCalendar *)calendar;
 - (void) stopCountingHoursInCalendar:(CalCalendar *)calendar;
 
+- (NSUInteger) firstWeekday;
+- (void) setFirstWeekday:(NSUInteger)weekDay;
+
 - (NSUInteger) completedHoursForWeek:(NSDate *)weekDate;
 - (NSUInteger) totalHoursForWeek:(NSDate *)weekDate;
 

@@ -11,7 +11,10 @@
 
 @interface CHPrefsWindowController : NSWindowController <NSTableViewDataSource>
 {
+    IBOutlet NSPopUpButton *_firstWeekdayPopUp;
     IBOutlet NSTableView *_calendarTableView;
 }
+
+- (IBAction) changeFirstWeekday:(id)sender;
 
 @end
