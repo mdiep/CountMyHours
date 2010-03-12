@@ -220,7 +220,7 @@ NSString * const CHHoursNeedToBeRecountedNotification = @"CHHoursNeedToBeRecount
 
 - (NSUInteger) _hoursBetweenBegin:(NSDate *)beginDate end:(NSDate *)endDate
 {
-    NSUInteger hours = 0;
+    NSTimeInterval interval = 0;
     
     if (beginDate && endDate)
     {
@@ -235,12 +235,11 @@ NSString * const CHHoursNeedToBeRecountedNotification = @"CHHoursNeedToBeRecount
             if (event.isAllDay)
                 continue;
             
-            NSTimeInterval interval = [event.endDate timeIntervalSinceDate:event.startDate];
-            hours += floor(interval/60.0/60.0);
+            interval += [event.endDate timeIntervalSinceDate:event.startDate];
         }
     }
     
-    return hours;
+    return floor(interval/60.0/60.0);
 }
 
 
