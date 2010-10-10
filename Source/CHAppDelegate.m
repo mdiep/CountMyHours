@@ -64,6 +64,14 @@
     
     NSString *title = [NSString stringWithFormat:@"%u/%uh", completed, total];
     [_statusItem setTitle:title];
+    
+    NSUInteger totalLastWeek = [counter totalHoursForWeek:[NSDate dateWithTimeIntervalSinceNow:-60*60*24*7]];
+    NSString *lastWeek = [NSString stringWithFormat:@"Last Week: %uh", totalLastWeek];
+    [_lastWeekItem setTitle:lastWeek];
+    
+    NSUInteger totalNextWeek = [counter totalHoursForWeek:[NSDate dateWithTimeIntervalSinceNow:60*60*24*7]];
+    NSString *nextWeek = [NSString stringWithFormat:@"Next Week: %uh", totalNextWeek];
+    [_nextWeekItem setTitle:nextWeek];
 }
 
 

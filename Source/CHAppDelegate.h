@@ -11,6 +11,8 @@
 @interface CHAppDelegate : NSObject <NSApplicationDelegate>
 {
     IBOutlet NSMenu *_menu;
+    IBOutlet NSMenuItem *_lastWeekItem;
+    IBOutlet NSMenuItem *_nextWeekItem;
     IBOutlet NSWindow *_prefsWindow;
     
     NSStatusItem *_statusItem;
